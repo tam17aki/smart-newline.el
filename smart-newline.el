@@ -42,23 +42,29 @@
     nil))
 
 (defun smart-newline/newline-and-indent ()
-  (newline)
+  (interactive)
+  (newline-and-indent)
   (indent-according-to-mode))
 
 (defun smart-newline/open-line-between ()
-  (open-line 1)
-  (indent-according-to-mode)
-  (save-excursion
-    (forward-line)
-    (indent-according-to-mode)
-    (previous-line)))
+  (cond ((= smart-newline/open-line-count 1)
+         (open-line 1))
+        (t
+         (open-line 1)
+         (indent-according-to-mode)
+         (save-excursion
+           (forward-line)
+           (indent-according-to-mode)
+           (forward-line -1)))))
 
 ;;;###autoload
 (defun smart-newline ()
   "newline-or-openline is a new command for merging C-m and C-o"
   (interactive)
-  (let ((string-exists-before-cursor (string-match "[^\\\s\\\n\\\t]" (buffer-substring (point-at-bol) (point))))
-        (string-exists-after-cursor (string-match "[^\\\s\\\n\\\t]" (buffer-substring (point) (point-at-eol)))))
+  (let ((string-exists-before-cursor (string-match "[^\\\s\\\n\\\t]"
+                                                   (buffer-substring (point-at-bol) (point))))
+        (string-exists-after-cursor (string-match "[^\\\s\\\n\\\t]"
+                                                  (buffer-substring (point) (point-at-eol)))))
     (cond ((or (and (= smart-newline/open-line-count 0)
                     (eolp))
                (and (>= smart-newline/open-line-count 2)
